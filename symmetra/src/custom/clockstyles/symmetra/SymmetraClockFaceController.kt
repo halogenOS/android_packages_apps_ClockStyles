@@ -55,7 +55,10 @@ class SymmetraClockFaceController(
             visibility = View.VISIBLE
             gravity = Gravity.CENTER
             alpha = 1f
-            typeface = Typeface.create("google-sans-clock", Typeface.NORMAL)
+            typeface = Typeface.create(
+                hostCtx.resources.getString(com.android.internal.R.string.config_clockFontFamily),
+                Typeface.NORMAL,
+            )
             letterSpacing = 0.02f
 
             if (isLargeClock) {
