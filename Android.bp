@@ -1,0 +1,10 @@
+// SPDX-License-Identifier: Apache-2.0
+// SPDX-FileCopyrightText: 2025 The halogenOS Project
+//
+
+phony {
+    name: "ClockStyles",
+    required: [
+        "ClockStyles-Symmetra",
+    ],
+}

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    SPDX-License-Identifier: Apache-2.0
+    SPDX-FileCopyrightText: 2025 The halogenOS Project
+-->
+<resources>
+    <string name="symmetra_clock_name">Symmetra</string>
+    <string name="symmetra_clock_description">A centered small clock that stays in place</string>
+</resources>

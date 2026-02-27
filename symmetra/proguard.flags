@@ -1,0 +1,8 @@
+-include ../../../../frameworks/base/packages/SystemUI/proguard_kotlin.flags
+
+-keepattributes Signature
+-keepclassmembers class custom.clockstyles.symmetra.R$* { public static <fields>; }
+
+# Keep the layout class - its method overrides are called from SystemUI host via protector,
+# invisible to R8 since SystemUIPluginLib is a compile-only dependency.
+-keep class custom.clockstyles.symmetra.SymmetraClockFaceLayout { *; }

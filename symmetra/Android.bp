@@ -1,0 +1,48 @@
+// SPDX-License-Identifier: Apache-2.0
+// SPDX-FileCopyrightText: 2025 The halogenOS Project
+//
+
+android_library {
+    name: "ClockStyles-SymmetraLib",
+    manifest: "AndroidManifest.xml",
+
+    srcs: ["src/**/*.kt"],
+    resource_dirs: ["res"],
+    use_resource_processor: true,
+    libs: ["SystemUIPluginLib"],
+    static_libs: [
+        "SystemUIClocks-CommonLib",
+    ],
+    kotlincflags: ["-Xjvm-default=all"],
+    min_sdk_version: "current",
+    system_ext_specific: true,
+    platform_apis: true,
+    optimize: {
+        enabled: true,
+        proguard_flags_files: ["proguard.flags"],
+        export_proguard_flags_files: true,
+        shrink_resources: true,
+        optimized_shrink_resources: true,
+    },
+}
+
+android_app {
+    name: "ClockStyles-Symmetra",
+    manifest: "AndroidManifest.xml",
+
+    libs: ["SystemUIPluginLib"],
+    static_libs: ["ClockStyles-SymmetraLib"],
+    min_sdk_version: "current",
+    plugins: ["dagger2-compiler"],
+    use_resource_processor: true,
+    system_ext_specific: true,
+    platform_apis: true,
+    certificate: "platform",
+    privileged: true,
+    optimize: {
+        enabled: true,
+        shrink_resources: true,
+        optimized_shrink_resources: true,
+        proguard_flags_files: ["proguard.flags"],
+    },
+}
