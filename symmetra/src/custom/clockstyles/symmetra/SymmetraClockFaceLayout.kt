@@ -7,7 +7,6 @@ package custom.clockstyles.symmetra
 import android.content.Context
 import android.view.Gravity
 import android.view.View
-import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.constraintlayout.widget.ConstraintSet.END
@@ -30,6 +29,21 @@ class SymmetraClockFaceLayout(
     private val rowId: Int =
         hostCtx.resources.getIdentifier("row", "id", hostCtx.packageName)
 
+    private var savedSliceView: View? = null
+    private var savedRow: LinearLayout? = null
+    private var savedPaddingStart = 0
+    private var savedGravity = Gravity.START
+
+    init {
+        // When our clock view is detached (clock switch), restore original date alignment
+        view.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+            override fun onViewAttachedToWindow(v: View) {}
+            override fun onViewDetachedFromWindow(v: View) {
+                resetDateView()
+            }
+        })
+    }
+
     override fun applyConstraints(constraints: ConstraintSet): ConstraintSet {
         super.applyConstraints(constraints)
         constraints.apply {
@@ -38,19 +52,41 @@ class SymmetraClockFaceLayout(
             connect(ClockViewIds.LOCKSCREEN_CLOCK_VIEW_SMALL, END, PARENT_ID, END, 0)
         }
 
-        // Center the KeyguardSliceView date row
-        (view.parent as? ViewGroup)?.let { parent ->
+        // Center the date row — use rootView to search the entire window hierarchy
+        view.rootView?.let { root ->
             if (sliceViewId != 0) {
-                parent.findViewById<View>(sliceViewId)?.let { sliceView ->
-                    sliceView.setPaddingRelative(0, sliceView.paddingTop, 0, sliceView.paddingBottom)
+                root.findViewById<View>(sliceViewId)?.let { sliceView ->
+                    if (savedSliceView == null) {
+                        savedSliceView = sliceView
+                        savedPaddingStart = sliceView.paddingStart
+                    }
+                    sliceView.setPaddingRelative(
+                        0, sliceView.paddingTop, 0, sliceView.paddingBottom
+                    )
                     if (rowId != 0) {
-                        sliceView.findViewById<LinearLayout>(rowId)?.gravity = Gravity.CENTER
+                        sliceView.findViewById<LinearLayout>(rowId)?.let { row ->
+                            if (savedRow == null) {
+                                savedRow = row
+                                savedGravity = row.gravity
+                            }
+                            row.gravity = Gravity.CENTER
+                        }
                     }
                 }
             }
         }
 
         return constraints
+    }
+
+    private fun resetDateView() {
+        savedSliceView?.setPaddingRelative(
+            savedPaddingStart,
+            savedSliceView?.paddingTop ?: 0,
+            0,
+            savedSliceView?.paddingBottom ?: 0,
+        )
+        savedRow?.gravity = savedGravity
     }
 
     override fun applyPreviewConstraints(
