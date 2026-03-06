@@ -80,6 +80,7 @@ class SymmetraClockFaceController(
     override val events =
         object : ClockFaceEvents {
             override fun onTimeTick() {
+                timeFormatter.timeKeeper.updateTime()
                 view.text =
                     if (isLargeClock) {
                         "${timespecHandler.getText()}\n${minuteTimespecHandler?.getText() ?: ""}"
