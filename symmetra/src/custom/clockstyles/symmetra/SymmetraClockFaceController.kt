@@ -60,6 +60,7 @@ class SymmetraClockFaceController(
                 Typeface.NORMAL,
             )
             letterSpacing = 0.02f
+            fontFeatureSettings = "tnum"
 
             if (isLargeClock) {
                 setSingleLine(false)
