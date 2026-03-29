@@ -93,7 +93,7 @@ class SymmetraClockFaceController(
 
             override fun onThemeChanged(theme: ThemeConfig) {
                 this@SymmetraClockFaceController.theme = theme
-                view.setTextColor(theme.getDefaultColor(pluginCtx))
+                view.setTextColor(theme.getDefaultColor(hostCtx))
             }
 
             override fun onFontSettingChanged(fontSizePx: Float) {
