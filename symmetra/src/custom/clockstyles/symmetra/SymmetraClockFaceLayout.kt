@@ -14,8 +14,8 @@ import androidx.constraintlayout.widget.ConstraintSet.PARENT_ID
 import androidx.constraintlayout.widget.ConstraintSet.START
 import androidx.constraintlayout.widget.ConstraintSet.TOP
 import androidx.constraintlayout.widget.ConstraintSet.WRAP_CONTENT
-import com.android.systemui.customization.clocks.DefaultClockFaceLayout
 import com.android.systemui.customization.clocks.R as clocksR
+import com.android.systemui.customization.clocks.view.DefaultClockFaceLayout
 import com.android.systemui.plugins.keyguard.ui.clocks.ClockPreviewConfig
 import com.android.systemui.plugins.keyguard.ui.clocks.ClockViewIds
 

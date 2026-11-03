@@ -24,9 +24,9 @@ class SymmetraClockProvider : ClockProviderPlugin {
     private lateinit var pluginCtx: Context
     private lateinit var messageBuffers: ClockMessageBuffers
 
-    override fun onCreate(hostCtx: Context, pluginCtx: Context) {
-        this.hostCtx = hostCtx
-        this.pluginCtx = pluginCtx
+    override fun onCreate(hostContext: Context, pluginContext: Context) {
+        this.hostCtx = hostContext
+        this.pluginCtx = pluginContext
     }
 
     override fun initialize(buffers: ClockMessageBuffers?) {

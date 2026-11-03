@@ -64,8 +64,6 @@ class SymmetraClockController(
 
     override val events =
         object : ClockEvents {
-            override var isReactiveTouchInteractionEnabled = false
-
             override fun onTimeZoneChanged(timeZone: TimeZone) {
                 timeFormatter.timeKeeper.timeZone = timeZone
                 smallClock.events.onTimeTick()

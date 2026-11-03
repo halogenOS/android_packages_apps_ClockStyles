@@ -5,18 +5,17 @@
 package custom.clockstyles.symmetra
 
 import android.content.Context
-import android.graphics.Rect
-import android.graphics.Typeface
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.widget.TextView
-import com.android.systemui.customization.clocks.DefaultClockFaceLayout
 import com.android.systemui.customization.clocks.DigitalTimeFormatter
 import com.android.systemui.customization.clocks.DigitalTimespec
 import com.android.systemui.customization.clocks.DigitalTimespecHandler
+import com.android.systemui.customization.clocks.view.DefaultClockFaceLayout
 import com.android.systemui.log.core.Logger
 import com.android.systemui.log.core.MessageBuffer
+import com.android.systemui.plugins.keyguard.VRect
 import com.android.systemui.plugins.keyguard.ui.clocks.ClockAnimations
 import com.android.systemui.plugins.keyguard.ui.clocks.ClockAxisStyle
 import com.android.systemui.plugins.keyguard.ui.clocks.ClockFaceConfig
@@ -46,7 +45,7 @@ class SymmetraClockFaceController(
     override val config = ClockFaceConfig()
     override var theme = ThemeConfig(isDarkTheme = true, settings.seedColor)
 
-    override val view: TextView =
+    private val timeView: TextView =
         TextView(pluginCtx).apply {
             id =
                 if (isLargeClock) ClockViewIds.LOCKSCREEN_CLOCK_VIEW_LARGE
@@ -55,10 +54,6 @@ class SymmetraClockFaceController(
             visibility = View.VISIBLE
             gravity = Gravity.CENTER
             alpha = 1f
-            typeface = Typeface.create(
-                hostCtx.resources.getString(com.android.internal.R.string.config_clockFontFamily),
-                Typeface.NORMAL,
-            )
             letterSpacing = 0.02f
             fontFeatureSettings = "tnum"
 
@@ -74,33 +69,36 @@ class SymmetraClockFaceController(
             }
         }
 
+    @Deprecated("Prefer use of layout")
+    override val view = timeView
+
     override val layout =
-        if (isLargeClock) DefaultClockFaceLayout(view)
-        else SymmetraClockFaceLayout(view, hostCtx)
+        if (isLargeClock) DefaultClockFaceLayout(timeView)
+        else SymmetraClockFaceLayout(timeView, hostCtx)
 
     override val events =
         object : ClockFaceEvents {
             override fun onTimeTick() {
                 timeFormatter.timeKeeper.updateTime()
-                view.text =
+                timeView.text =
                     if (isLargeClock) {
                         "${timespecHandler.getText()}\n${minuteTimespecHandler?.getText() ?: ""}"
                     } else {
                         timespecHandler.getText()
                     }
-                logger.i("Updated rendered time to '${view.text}'")
+                logger.i("Updated rendered time to '${timeView.text}'")
             }
 
             override fun onThemeChanged(theme: ThemeConfig) {
                 this@SymmetraClockFaceController.theme = theme
-                view.setTextColor(theme.getDefaultColor(hostCtx))
+                timeView.setTextColor(theme.getDefaultColor(hostCtx))
             }
 
             override fun onFontSettingChanged(fontSizePx: Float) {
-                view.setTextSize(TypedValue.COMPLEX_UNIT_PX, fontSizePx)
+                timeView.setTextSize(TypedValue.COMPLEX_UNIT_PX, fontSizePx)
             }
 
-            override fun onTargetRegionChanged(targetRegion: Rect?) {}
+            override fun onTargetRegionChanged(targetRegion: VRect) {}
 
             override fun onSecondaryDisplayChanged(onSecondaryDisplay: Boolean) {}
         }
@@ -110,7 +108,7 @@ class SymmetraClockFaceController(
             override fun enter() {}
 
             override fun doze(fraction: Float) {
-                view.alpha = if (fraction > 0.5f) 0.5f else 1f
+                timeView.alpha = if (fraction > 0.5f) 0.5f else 1f
             }
 
             override fun fold(fraction: Float) {}
@@ -119,7 +117,7 @@ class SymmetraClockFaceController(
 
             override fun onPickerCarouselSwiping(swipingFraction: Float) {}
 
-            override fun onPositionAnimated(args: ClockPositionAnimationArgs) {}
+            override fun onPositionAnimated(anim: ClockPositionAnimationArgs) {}
 
             override fun onFidgetTap(x: Float, y: Float) {}
 
