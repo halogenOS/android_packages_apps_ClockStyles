@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    SPDX-FileCopyrightText: The halogenOS Project
+    SPDX-License-Identifier: Apache-2.0
+-->
+<!-- The thumbnail in the clock picker: the art of the clock with the badge of the clock styles. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/element_clock_art" />
+    <item android:drawable="@drawable/clock_style_badge" />
+</layer-list>

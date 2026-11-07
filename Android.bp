@@ -5,6 +5,7 @@
 phony {
     name: "ClockStyles",
     required: [
+        "ClockStyles-Element",
         "ClockStyles-Symmetra",
     ],
 }
