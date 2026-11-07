@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    SPDX-FileCopyrightText: The halogenOS Project
+    SPDX-License-Identifier: Apache-2.0
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="36dp"
+    android:height="50dp"
+    android:viewportWidth="36"
+    android:viewportHeight="50">
+
+    <group>
+        <clip-path
+            android:pathData="M0,0 L36,0 L36,50 L0,50 Z M31,38.5 A6,6 0 0,0 31,50.5 A6,6 0 0,0 31,38.5 Z" />
+
+        <!-- The minute shell and the hour shell -->
+        <path
+            android:pathData="M18,8 a15,15 0 1,0 0.01,0 Z M18,10 a13,13 0 1,1 -0.01,0 Z M18,15 a8,8 0 1,0 0.01,0 Z M18,16.8 a6.2,6.2 0 1,1 -0.01,0 Z"
+            android:fillColor="#FFFFFF"
+            android:fillType="evenOdd"
+            android:fillAlpha="0.7" />
+        <!-- The nucleus and the two electrons -->
+        <path
+            android:pathData="M18,19.5 a3.5,3.5 0 1,0 0.01,0 Z M11.4,13.6 a2.6,2.6 0 1,0 0.01,0 Z M4.6,24.6 a2.2,2.2 0 1,0 0.01,0 Z"
+            android:fillColor="#FFFFFF" />
+    </group>
+</vector>

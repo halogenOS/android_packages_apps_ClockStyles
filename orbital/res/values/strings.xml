@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    SPDX-FileCopyrightText: The halogenOS Project
+    SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <string name="orbital_clock_name">Orbital</string>
+    <string name="orbital_clock_description">Hour and minute as two electrons circling the time</string>
+</resources>

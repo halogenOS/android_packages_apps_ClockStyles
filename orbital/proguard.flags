@@ -1,0 +1,4 @@
+-keepclassmembers class custom.clockstyles.orbital.R$* { public static <fields>; }
+
+# The plugin loader creates the provider by its name in the manifest.
+-keep class custom.clockstyles.orbital.OrbitalClockProvider { *; }
