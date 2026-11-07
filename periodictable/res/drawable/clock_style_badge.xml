@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    SPDX-FileCopyrightText: The halogenOS Project
+    SPDX-License-Identifier: Apache-2.0
+-->
+<!-- The cogwheel at the bottom right of the clock thumbnails. The art beside it leaves a circle
+     of 6 around (31, 44.5) free. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="36dp"
+    android:height="50dp"
+    android:viewportWidth="36"
+    android:viewportHeight="50">
+
+    <path
+        android:pathData="
+            M30.25,40.0 L31.75,40.0 L32.15,41.05 L33.1,41.5 L34.15,41.15 L35.1,42.1 L34.6,43.05 L35.1,44.0 L36.35,44.35 L36.35,45.85 L35.1,46.2 L34.6,47.15 L35.1,48.1 L34.15,49.05 L33.1,48.6 L32.15,49.15 L31.75,50.2 L30.25,50.2 L29.85,49.15 L28.9,48.6 L27.85,49.05 L26.9,48.1 L27.4,47.15 L26.9,46.2 L25.65,45.85 L25.65,44.35 L26.9,44.0 L27.4,43.05 L26.9,42.1 L27.85,41.15 L28.9,41.5 L29.85,41.05 Z
+            M31,43.4 a1.5,1.5 0 1,0 0.01,0 Z"
+        android:fillColor="#FFFFFF"
+        android:fillType="evenOdd" />
+</vector>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    SPDX-FileCopyrightText: The halogenOS Project
+    SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <!-- The names of the elements 1 to 59, as shown on the clock tiles. -->
+    <string name="element_hydrogen">Hydrogen</string>
+    <string name="element_helium">Helium</string>
+    <string name="element_lithium">Lithium</string>
+    <string name="element_beryllium">Beryllium</string>
+    <string name="element_boron">Boron</string>
+    <string name="element_carbon">Carbon</string>
+    <string name="element_nitrogen">Nitrogen</string>
+    <string name="element_oxygen">Oxygen</string>
+    <string name="element_fluorine">Fluorine</string>
+    <string name="element_neon">Neon</string>
+    <string name="element_sodium">Sodium</string>
+    <string name="element_magnesium">Magnesium</string>
+    <string name="element_aluminium">Aluminium</string>
+    <string name="element_silicon">Silicon</string>
+    <string name="element_phosphorus">Phosphorus</string>
+    <string name="element_sulfur">Sulfur</string>
+    <string name="element_chlorine">Chlorine</string>
+    <string name="element_argon">Argon</string>
+    <string name="element_potassium">Potassium</string>
+    <string name="element_calcium">Calcium</string>
+    <string name="element_scandium">Scandium</string>
+    <string name="element_titanium">Titanium</string>
+    <string name="element_vanadium">Vanadium</string>
+    <string name="element_chromium">Chromium</string>
+    <string name="element_manganese">Manganese</string>
+    <string name="element_iron">Iron</string>
+    <string name="element_cobalt">Cobalt</string>
+    <string name="element_nickel">Nickel</string>
+    <string name="element_copper">Copper</string>
+    <string name="element_zinc">Zinc</string>
+    <string name="element_gallium">Gallium</string>
+    <string name="element_germanium">Germanium</string>
+    <string name="element_arsenic">Arsenic</string>
+    <string name="element_selenium">Selenium</string>
+    <string name="element_bromine">Bromine</string>
+    <string name="element_krypton">Krypton</string>
+    <string name="element_rubidium">Rubidium</string>
+    <string name="element_strontium">Strontium</string>
+    <string name="element_yttrium">Yttrium</string>
+    <string name="element_zirconium">Zirconium</string>
+    <string name="element_niobium">Niobium</string>
+    <string name="element_molybdenum">Molybdenum</string>
+    <string name="element_technetium">Technetium</string>
+    <string name="element_ruthenium">Ruthenium</string>
+    <string name="element_rhodium">Rhodium</string>
+    <string name="element_palladium">Palladium</string>
+    <string name="element_silver">Silver</string>
+    <string name="element_cadmium">Cadmium</string>
+    <string name="element_indium">Indium</string>
+    <string name="element_tin">Tin</string>
+    <string name="element_antimony">Antimony</string>
+    <string name="element_tellurium">Tellurium</string>
+    <string name="element_iodine">Iodine</string>
+    <string name="element_xenon">Xenon</string>
+    <string name="element_caesium">Caesium</string>
+    <string name="element_barium">Barium</string>
+    <string name="element_lanthanum">Lanthanum</string>
+    <string name="element_cerium">Cerium</string>
+    <string name="element_praseodymium">Praseodymium</string>
+</resources>

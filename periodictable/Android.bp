@@ -1,0 +1,52 @@
+// SPDX-FileCopyrightText: The halogenOS Project
+// SPDX-License-Identifier: Apache-2.0
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+android_library {
+    name: "ClockStyles-PeriodicTableLib",
+    manifest: "AndroidManifest.xml",
+
+    srcs: ["src/**/*.kt"],
+    resource_dirs: ["res"],
+    use_resource_processor: true,
+    libs: ["SystemUIPluginLib"],
+    static_libs: [
+        "SystemUIClocks-CommonLib",
+    ],
+    kotlincflags: ["-Xjvm-default=all"],
+    min_sdk_version: "current",
+    system_ext_specific: true,
+    platform_apis: true,
+    optimize: {
+        enabled: true,
+        proguard_flags_files: ["proguard.flags"],
+        export_proguard_flags_files: true,
+        shrink_resources: true,
+        optimized_shrink_resources: true,
+    },
+}
+
+// A clock style plugin built on ClockStyles-PeriodicTableLib.
+java_defaults {
+    name: "ClockStyles-PeriodicTableDefaults",
+    srcs: ["src/**/*.kt"],
+    resource_dirs: ["res"],
+    use_resource_processor: true,
+    libs: ["SystemUIPluginLib"],
+    static_libs: ["ClockStyles-PeriodicTableLib"],
+    kotlincflags: ["-Xjvm-default=all"],
+    min_sdk_version: "current",
+    system_ext_specific: true,
+    platform_apis: true,
+    certificate: "platform",
+    privileged: true,
+    optimize: {
+        enabled: true,
+        shrink_resources: true,
+        optimized_shrink_resources: true,
+        proguard_flags_files: ["proguard.flags"],
+    },
+}

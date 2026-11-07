@@ -1,0 +1,22 @@
+-include ../../../../frameworks/base/packages/SystemUI/proguard_kotlin.flags
+
+-keepattributes Signature
+-keepclassmembers class custom.clockstyles.periodictable.R$* { public static <fields>; }
+
+# SystemUI calls the clock, its faces and their layouts through plugin interfaces hidden from R8,
+# since SystemUIPluginLib is a compile-only dependency.
+-keep class custom.clockstyles.periodictable.PeriodicTableClockProvider { *; }
+-keep class custom.clockstyles.periodictable.PeriodicTableClockController { *; }
+-keep class custom.clockstyles.periodictable.PeriodicTableClockController$* { *; }
+-keep class custom.clockstyles.periodictable.PeriodicTableFaceController { *; }
+-keep class custom.clockstyles.periodictable.PeriodicTableFaceController$* { *; }
+-keep class com.android.systemui.customization.clocks.view.DefaultClockFaceLayout { *; }
+-keep class com.android.systemui.customization.clocks.view.DefaultClockFaceLayout$* { *; }
+
+# Without these, R8 assumes that the Compose methods below return null, which they do not, and the
+# faces crash at runtime.
+-keep !enum androidx.compose.**Scope { *; }
+-keep !enum androidx.compose.runtime.** {
+    *** startRestartGroup(...);
+    *** getApplier(...);
+}
