@@ -6,6 +6,7 @@ package custom.clockstyles.symmetra
 
 import android.content.Context
 import android.icu.util.TimeZone
+import com.android.systemui.customization.clocks.DigitalDateFormatter
 import com.android.systemui.customization.clocks.DigitalTimeFormatter
 import com.android.systemui.customization.clocks.TimeKeeper
 import com.android.systemui.plugins.keyguard.data.model.AlarmData
@@ -31,6 +32,8 @@ class SymmetraClockController(
     val timeFormatter = DigitalTimeFormatter("hh:mm", timeKeeper)
     val hourFormatter = DigitalTimeFormatter("hh", timeKeeper)
     val minuteFormatter = DigitalTimeFormatter("mm", timeKeeper)
+    val weekdayFormatter = DigitalDateFormatter("EEEE", timeKeeper, enableContentDescription = true)
+    val monthDayFormatter = DigitalDateFormatter("MMM d", timeKeeper)
 
     override val smallClock =
         SymmetraClockFaceController(
@@ -38,6 +41,8 @@ class SymmetraClockController(
             pluginCtx,
             settings,
             timeFormatter,
+            weekdayFormatter,
+            monthDayFormatter,
             messageBuffers.smallClockMessageBuffer,
             isLargeClock = false,
         )
@@ -48,6 +53,8 @@ class SymmetraClockController(
             pluginCtx,
             settings,
             hourFormatter,
+            weekdayFormatter,
+            monthDayFormatter,
             messageBuffers.largeClockMessageBuffer,
             isLargeClock = true,
             minuteFormatter = minuteFormatter,
@@ -82,6 +89,8 @@ class SymmetraClockController(
                 timeFormatter.locale = locale
                 hourFormatter.locale = locale
                 minuteFormatter.locale = locale
+                weekdayFormatter.locale = locale
+                monthDayFormatter.locale = locale
                 smallClock.events.onTimeTick()
                 largeClock.events.onTimeTick()
             }

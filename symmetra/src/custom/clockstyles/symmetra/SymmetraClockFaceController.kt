@@ -9,6 +9,7 @@ import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.widget.TextView
+import com.android.systemui.customization.clocks.DigitalDateFormatter
 import com.android.systemui.customization.clocks.DigitalTimeFormatter
 import com.android.systemui.customization.clocks.DigitalTimespec
 import com.android.systemui.customization.clocks.DigitalTimespecHandler
@@ -23,6 +24,7 @@ import com.android.systemui.plugins.keyguard.ui.clocks.ClockFaceController
 import com.android.systemui.plugins.keyguard.ui.clocks.ClockFaceEvents
 import com.android.systemui.plugins.keyguard.ui.clocks.ClockPositionAnimationArgs
 import com.android.systemui.plugins.keyguard.ui.clocks.ClockSettings
+import com.android.systemui.plugins.keyguard.ui.clocks.ClockStyleSlot
 import com.android.systemui.plugins.keyguard.ui.clocks.ClockViewIds
 import com.android.systemui.plugins.keyguard.ui.clocks.ThemeConfig
 
@@ -31,6 +33,8 @@ class SymmetraClockFaceController(
     private val pluginCtx: Context,
     private val settings: ClockSettings,
     private val timeFormatter: DigitalTimeFormatter,
+    weekdayFormatter: DigitalDateFormatter,
+    monthDayFormatter: DigitalDateFormatter,
     private val messageBuffer: MessageBuffer,
     private val isLargeClock: Boolean,
     private val minuteFormatter: DigitalTimeFormatter? = null,
@@ -69,12 +73,16 @@ class SymmetraClockFaceController(
             }
         }
 
+    private val dateRow = SymmetraDateRow(weekdayFormatter, monthDayFormatter, timeView)
+
+    override val clockStyleSlot: ClockStyleSlot
+        get() = dateRow
+
     @Deprecated("Prefer use of layout")
     override val view = timeView
 
     override val layout =
-        if (isLargeClock) DefaultClockFaceLayout(timeView)
-        else SymmetraClockFaceLayout(timeView, hostCtx)
+        if (isLargeClock) DefaultClockFaceLayout(timeView) else SymmetraClockFaceLayout(timeView)
 
     override val events =
         object : ClockFaceEvents {
@@ -87,11 +95,13 @@ class SymmetraClockFaceController(
                         timespecHandler.getText()
                     }
                 logger.i("Updated rendered time to '${timeView.text}'")
+                dateRow.update()
             }
 
             override fun onThemeChanged(theme: ThemeConfig) {
                 this@SymmetraClockFaceController.theme = theme
                 timeView.setTextColor(theme.getDefaultColor(hostCtx))
+                dateRow.update()
             }
 
             override fun onFontSettingChanged(fontSizePx: Float) {
@@ -109,6 +119,7 @@ class SymmetraClockFaceController(
 
             override fun doze(fraction: Float) {
                 timeView.alpha = if (fraction > 0.5f) 0.5f else 1f
+                dateRow.update()
             }
 
             override fun fold(fraction: Float) {}
