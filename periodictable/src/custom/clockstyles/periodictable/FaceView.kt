@@ -39,7 +39,7 @@ abstract class FaceView(context: Context, val design: FaceDesign, colors: ClockC
     View(context) {
     protected val density = resources.displayMetrics.density
     protected val painter = GlassPainter(density)
-    protected val alarmIcon = AlarmIcon(density)
+    private val alarmIcon = AlarmIcon(density)
     private val weekday by lazy { scaledTextPaint(18f, weight = 400) }
     private val monthDay by lazy { textPaint(46.dp, weight = 300) }
 
@@ -111,6 +111,10 @@ abstract class FaceView(context: Context, val design: FaceDesign, colors: ClockC
 
     protected val DpPoint.px
         get() = PointF(x.px, y.px)
+
+    /** How far content of the given size in px shrinks to fit into this area: 1 where it fits. */
+    protected fun DpRect.scaleToFit(contentWidth: Float, contentHeight: Float) =
+        min(1f, min(width.px / contentWidth, height.px / contentHeight))
 
     /** The width of the day and date of [reading] as [drawDayAndDate] writes them. */
     protected fun dayAndDateWidth(reading: ClockReading) =
@@ -232,6 +236,10 @@ fun Paint.textMiddleOn(baseline: Float) = baseline + (fontMetrics.ascent + fontM
 
 /** The baseline that puts the top of the text of this paint at [top]. */
 fun Paint.baselineBelow(top: Float) = top - fontMetrics.ascent
+
+/** The height of a line of text of this paint, from the top of the text to its bottom. */
+val Paint.textHeight
+    get() = fontMetrics.run { descent - ascent }
 
 private val Paint.Align.mirrored
     get() =

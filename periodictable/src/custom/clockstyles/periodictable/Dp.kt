@@ -24,3 +24,12 @@ val Number.dp
 
 /** A point given in dp from the top left of a face. */
 data class DpPoint(val x: Dp, val y: Dp)
+
+/** An area given in dp from the top left of a face. */
+data class DpRect(val left: Dp, val top: Dp, val right: Dp, val bottom: Dp) {
+    val width
+        get() = right - left
+
+    val height
+        get() = bottom - top
+}

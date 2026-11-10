@@ -23,7 +23,6 @@ data class ClockReading(
     val minuteText: String,
     val weekday: String,
     val monthDay: String,
-    val shortDate: String,
     val nextAlarm: String?,
     val description: String,
 ) {
@@ -45,7 +44,6 @@ class ClockFormats(
     private val minuteDigits = formatter("mm")
     private val weekday = bestFormatter("EEEE")
     private val monthDay = bestFormatter("MMMd")
-    private val shortDate = bestFormatter("EEEMMMd")
     private val alarm = bestFormatter("EEE${hourSkeleton}mm")
     private val description = bestFormatter("EEEEMMMMd${hourSkeleton}mm")
 
@@ -58,7 +56,6 @@ class ClockFormats(
             minuteText = minuteDigits.format(now),
             weekday = weekday.format(now),
             monthDay = monthDay.format(now),
-            shortDate = shortDate.format(now),
             nextAlarm = nextAlarm?.let(alarm::format),
             description = description.format(now),
         )
