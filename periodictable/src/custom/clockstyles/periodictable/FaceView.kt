@@ -40,6 +40,8 @@ abstract class FaceView(context: Context, val design: FaceDesign, colors: ClockC
     protected val density = resources.displayMetrics.density
     protected val painter = GlassPainter(density)
     protected val alarmIcon = AlarmIcon(density)
+    private val weekday by lazy { scaledTextPaint(18f, weight = 400) }
+    private val monthDay by lazy { textPaint(46.dp, weight = 300) }
 
     protected var style = GlassStyle(colors, dozeFraction = 0f)
         private set
@@ -110,6 +112,55 @@ abstract class FaceView(context: Context, val design: FaceDesign, colors: ClockC
     protected val DpPoint.px
         get() = PointF(x.px, y.px)
 
+    /** The width of the day and date of [reading] as [drawDayAndDate] writes them. */
+    protected fun dayAndDateWidth(reading: ClockReading) =
+        maxOf(monthDay.measureText(reading.monthDay), weekday.measureText(reading.weekday))
+
+    /** The height of the day and date as [drawDayAndDate] writes them. */
+    protected val dayAndDateHeight
+        get() = dateBaselineBelow(0f) + monthDay.fontMetrics.descent
+
+    /** The baseline of the date written by [drawDayAndDate] with the top of the day at [top]. */
+    protected fun dateBaselineBelow(top: Float) = weekday.baselineBelow(top) + monthDay.textSize
+
+    /**
+     * Writes the day of the week and, in large light type below it, the date, from [start] with the
+     * top of the day at [top].
+     */
+    protected fun Canvas.drawDayAndDate(
+        reading: ClockReading,
+        style: GlassStyle,
+        start: Float,
+        top: Float,
+    ) {
+        weekday.color = style.inkBeside.withAlpha(0.8f)
+        monthDay.color = style.inkBeside
+        drawUpright(reading.weekday, start, weekday.baselineBelow(top), weekday)
+        drawUpright(reading.monthDay, start, dateBaselineBelow(top), monthDay)
+    }
+
+    /** The width of the alarm icon and [time] in [paint] as [drawAlarm] draws them. */
+    protected fun alarmWidth(time: String, paint: Paint) =
+        alarmIcon.width + ALARM_ICON_GAP.px + paint.measureText(time)
+
+    /** Draws the alarm icon and, after it, [time] in [paint] on [baseline], from [start]. */
+    protected fun Canvas.drawAlarm(
+        time: String,
+        style: GlassStyle,
+        paint: Paint,
+        start: Float,
+        baseline: Float,
+    ) {
+        paint.color = style.inkBeside
+        alarmIcon.draw(
+            this,
+            start + alarmIcon.width / 2,
+            paint.textMiddleOn(baseline),
+            style.inkBeside,
+        )
+        drawUpright(time, start + alarmIcon.width + ALARM_ICON_GAP.px, baseline, paint)
+    }
+
     /**
      * Draws [text] at [x] and baseline [y] the right way round, also where the face is mirrored for
      * a right-to-left layout. The alignment of [paint] is then mirrored with it.
@@ -167,6 +218,10 @@ abstract class FaceView(context: Context, val design: FaceDesign, colors: ClockC
         MeasureSpec.getSize(measureSpec).toFloat().takeIf {
             MeasureSpec.getMode(measureSpec) != MeasureSpec.UNSPECIFIED
         }
+
+    private companion object {
+        val ALARM_ICON_GAP = 6.dp
+    }
 }
 
 /** The baseline that centres the text of this paint on [y]. */

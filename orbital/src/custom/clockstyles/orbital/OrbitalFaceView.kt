@@ -18,10 +18,8 @@ import custom.clockstyles.periodictable.FaceDesign
 import custom.clockstyles.periodictable.FaceSize
 import custom.clockstyles.periodictable.FaceView
 import custom.clockstyles.periodictable.GlassStyle
-import custom.clockstyles.periodictable.baselineBelow
 import custom.clockstyles.periodictable.baselineCentredOn
 import custom.clockstyles.periodictable.dp
-import custom.clockstyles.periodictable.textMiddleOn
 import custom.clockstyles.periodictable.withAlpha
 import kotlin.math.PI
 import kotlin.math.cos
@@ -98,8 +96,6 @@ private constructor(context: Context, private val layout: AtomLayout, colors: Cl
                 textPaint(placement.textSize, weight = 450, Paint.Align.CENTER)
             is TimePlacement.BesideAtom -> textPaint(placement.textSize, weight = 300)
         }
-    private val weekday = scaledTextPaint(18f, weight = 400)
-    private val monthDay = textPaint(46.dp, weight = 300)
     private val alarm = scaledTextPaint(16f, weight = 400)
     private val chip = textPaint(13.dp, weight = 650, Paint.Align.CENTER)
     private val chipBounds = RectF()
@@ -154,28 +150,15 @@ private constructor(context: Context, private val layout: AtomLayout, colors: Cl
     private fun details(canvas: Canvas, reading: ClockReading, style: GlassStyle, centre: PointF) {
         val start = centre.x + (layout.minutes.radius + 20.dp).px
         val top = 30.dp.px
-        val widest =
-            maxOf(monthDay.measureText(reading.monthDay), weekday.measureText(reading.weekday))
         val room = layout.design.width.px - start - 12.dp.px
-        val scale = min(1f, room / widest).coerceAtLeast(0f)
+        val scale = min(1f, room / dayAndDateWidth(reading)).coerceAtLeast(0f)
         canvas.save()
         canvas.scale(scale, scale, start, top)
-        weekday.color = style.inkBeside.withAlpha(0.8f)
-        monthDay.color = style.inkBeside
-        alarm.color = style.inkBeside
-        var baseline = weekday.baselineBelow(top)
-        canvas.drawUpright(reading.weekday, start, baseline, weekday)
-        baseline += monthDay.fontSpacing
-        canvas.drawUpright(reading.monthDay, start, baseline, monthDay)
+        canvas.drawDayAndDate(reading, style, start, top)
+        var baseline = dateBaselineBelow(top)
         reading.nextAlarm?.let {
             baseline += alarm.fontSpacing * 1.4f
-            alarmIcon.draw(
-                canvas,
-                start + alarmIcon.width / 2,
-                alarm.textMiddleOn(baseline),
-                style.inkBeside,
-            )
-            canvas.drawUpright(it, start + alarmIcon.width + 6.dp.px, baseline, alarm)
+            canvas.drawAlarm(it, style, alarm, start, baseline)
         }
         baseline += alarm.fontSpacing * 0.6f
         var x = start
