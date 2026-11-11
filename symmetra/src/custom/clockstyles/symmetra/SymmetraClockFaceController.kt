@@ -5,6 +5,7 @@
 package custom.clockstyles.symmetra
 
 import android.content.Context
+import android.os.Looper
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
@@ -42,8 +43,6 @@ internal class SymmetraClockFaceController(
 
     private val timeView: TextView =
         TextView(pluginCtx).apply {
-            id = face.viewId
-
             visibility = View.VISIBLE
             gravity = Gravity.CENTER
             alpha = 1f
@@ -54,29 +53,34 @@ internal class SymmetraClockFaceController(
             text = face.timeText()
         }
 
-    private val dateRow = SymmetraDateRow(weekdayFormatter, monthDayFormatter, timeView)
+    private val dateText = DateRowText(weekday = weekdayFormatter, monthDay = monthDayFormatter)
+    private val dateRow = SymmetraDateRow(pluginCtx) { show(dateText) }
+    private val textViews = listOf(timeView, dateRow)
+
+    private val faceView = face.createView(pluginCtx, timeView, dateRow)
 
     override val clockStyleSlot: ClockStyleSlot
-        get() = dateRow
+        get() = EmptyDateSlot
 
-    @Deprecated("Prefer use of layout")
-    override val view = timeView
+    @Deprecated("Prefer use of layout") override val view = faceView
 
-    override val layout = face.createLayout(timeView)
+    override val layout = face.createLayout(faceView)
 
     override val events =
         object : ClockFaceEvents {
             override fun onTimeTick() {
+                checkMainThread()
                 timeKeeper.updateTime()
                 timeView.text = face.timeText()
                 logger.i("Updated rendered time to '${timeView.text}'")
-                dateRow.update()
+                dateRow.show(dateText)
             }
 
             override fun onThemeChanged(theme: ThemeConfig) {
+                checkMainThread()
                 this@SymmetraClockFaceController.theme = theme
-                timeView.setTextColor(theme.getDefaultColor(hostCtx))
-                dateRow.update()
+                val color = theme.getDefaultColor(hostCtx)
+                textViews.forEach { it.setTextColor(color) }
             }
 
             override fun onFontSettingChanged(fontSizePx: Float) {
@@ -93,8 +97,9 @@ internal class SymmetraClockFaceController(
             override fun enter() {}
 
             override fun doze(fraction: Float) {
-                timeView.alpha = if (fraction > 0.5f) 0.5f else 1f
-                dateRow.update()
+                checkMainThread()
+                val alpha = if (fraction > DIMMED_ABOVE_DOZE_FRACTION) DIMMED_ALPHA else 1f
+                textViews.forEach { it.alpha = alpha }
             }
 
             override fun fold(fraction: Float) {}
@@ -109,4 +114,14 @@ internal class SymmetraClockFaceController(
 
             override fun onFontAxesChanged(style: ClockAxisStyle) {}
         }
+
+    private fun checkMainThread() =
+        check(Looper.getMainLooper().isCurrentThread) { "A clock face runs on the main thread" }
+
+    private companion object {
+        // The look of the always-on display, a design choice of the clock style: the time and the
+        // date are dimmed for the second half of the way into it.
+        const val DIMMED_ABOVE_DOZE_FRACTION = 0.5f
+        const val DIMMED_ALPHA = 0.5f
+    }
 }

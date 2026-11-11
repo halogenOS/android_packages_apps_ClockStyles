@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    SPDX-FileCopyrightText: The halogenOS Project
+    SPDX-License-Identifier: Apache-2.0
+-->
+<resources>
+    <!-- The gap between the large time and the date row below it. It is as wide as the gap a host
+         leaves above its own date below a large clock. -->
+    <dimen name="symmetra_large_date_row_gap">6dp</dimen>
+</resources>
