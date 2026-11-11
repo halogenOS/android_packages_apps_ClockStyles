@@ -9,6 +9,7 @@ import android.icu.util.TimeZone
 import com.android.systemui.customization.clocks.DigitalDateFormatter
 import com.android.systemui.customization.clocks.DigitalTimeFormatter
 import com.android.systemui.customization.clocks.TimeKeeper
+import com.android.systemui.log.core.MessageBuffer
 import com.android.systemui.plugins.keyguard.data.model.AlarmData
 import com.android.systemui.plugins.keyguard.data.model.WeatherData
 import com.android.systemui.plugins.keyguard.data.model.ZenData
@@ -22,7 +23,7 @@ import com.android.systemui.plugins.keyguard.ui.clocks.TimeFormatKind
 import java.io.PrintWriter
 import java.util.Locale
 
-class SymmetraClockController(
+internal class SymmetraClockController(
     private val hostCtx: Context,
     private val pluginCtx: Context,
     private val settings: ClockSettings,
@@ -36,28 +37,12 @@ class SymmetraClockController(
     val monthDayFormatter = DigitalDateFormatter("MMM d", timeKeeper)
 
     override val smallClock =
-        SymmetraClockFaceController(
-            hostCtx,
-            pluginCtx,
-            settings,
-            timeFormatter,
-            weekdayFormatter,
-            monthDayFormatter,
-            messageBuffers.smallClockMessageBuffer,
-            isLargeClock = false,
-        )
+        createFace(SymmetraFace.Small(timeFormatter), messageBuffers.smallClockMessageBuffer)
 
     override val largeClock =
-        SymmetraClockFaceController(
-            hostCtx,
-            pluginCtx,
-            settings,
-            hourFormatter,
-            weekdayFormatter,
-            monthDayFormatter,
+        createFace(
+            SymmetraFace.Large(hourFormatter, minuteFormatter),
             messageBuffers.largeClockMessageBuffer,
-            isLargeClock = true,
-            minuteFormatter = minuteFormatter,
         )
 
     override val config =
@@ -117,4 +102,16 @@ class SymmetraClockController(
     }
 
     override fun dump(pw: PrintWriter) {}
+
+    private fun createFace(face: SymmetraFace, messageBuffer: MessageBuffer) =
+        SymmetraClockFaceController(
+            hostCtx = hostCtx,
+            pluginCtx = pluginCtx,
+            settings = settings,
+            face = face,
+            timeKeeper = timeKeeper,
+            weekdayFormatter = weekdayFormatter,
+            monthDayFormatter = monthDayFormatter,
+            messageBuffer = messageBuffer,
+        )
 }

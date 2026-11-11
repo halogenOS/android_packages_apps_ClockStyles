@@ -10,10 +10,7 @@ import android.view.Gravity
 import android.view.View
 import android.widget.TextView
 import com.android.systemui.customization.clocks.DigitalDateFormatter
-import com.android.systemui.customization.clocks.DigitalTimeFormatter
-import com.android.systemui.customization.clocks.DigitalTimespec
-import com.android.systemui.customization.clocks.DigitalTimespecHandler
-import com.android.systemui.customization.clocks.view.DefaultClockFaceLayout
+import com.android.systemui.customization.clocks.TimeKeeper
 import com.android.systemui.log.core.Logger
 import com.android.systemui.log.core.MessageBuffer
 import com.android.systemui.plugins.keyguard.VRect
@@ -25,35 +22,27 @@ import com.android.systemui.plugins.keyguard.ui.clocks.ClockFaceEvents
 import com.android.systemui.plugins.keyguard.ui.clocks.ClockPositionAnimationArgs
 import com.android.systemui.plugins.keyguard.ui.clocks.ClockSettings
 import com.android.systemui.plugins.keyguard.ui.clocks.ClockStyleSlot
-import com.android.systemui.plugins.keyguard.ui.clocks.ClockViewIds
 import com.android.systemui.plugins.keyguard.ui.clocks.ThemeConfig
 
-class SymmetraClockFaceController(
+internal class SymmetraClockFaceController(
     private val hostCtx: Context,
     private val pluginCtx: Context,
     private val settings: ClockSettings,
-    private val timeFormatter: DigitalTimeFormatter,
+    private val face: SymmetraFace,
+    private val timeKeeper: TimeKeeper,
     weekdayFormatter: DigitalDateFormatter,
     monthDayFormatter: DigitalDateFormatter,
     private val messageBuffer: MessageBuffer,
-    private val isLargeClock: Boolean,
-    private val minuteFormatter: DigitalTimeFormatter? = null,
 ) : ClockFaceController {
 
-    val logger = Logger(messageBuffer, this::class.simpleName!!)
-    val timespecHandler = DigitalTimespecHandler(DigitalTimespec.TIME_FULL_FORMAT, timeFormatter)
-    val minuteTimespecHandler = minuteFormatter?.let {
-        DigitalTimespecHandler(DigitalTimespec.TIME_FULL_FORMAT, it)
-    }
+    private val logger = Logger(messageBuffer, this::class.simpleName!!)
 
     override val config = ClockFaceConfig()
     override var theme = ThemeConfig(isDarkTheme = true, settings.seedColor)
 
     private val timeView: TextView =
         TextView(pluginCtx).apply {
-            id =
-                if (isLargeClock) ClockViewIds.LOCKSCREEN_CLOCK_VIEW_LARGE
-                else ClockViewIds.LOCKSCREEN_CLOCK_VIEW_SMALL
+            id = face.viewId
 
             visibility = View.VISIBLE
             gravity = Gravity.CENTER
@@ -61,16 +50,8 @@ class SymmetraClockFaceController(
             letterSpacing = 0.02f
             fontFeatureSettings = "tnum"
 
-            if (isLargeClock) {
-                setSingleLine(false)
-                setTextSize(TypedValue.COMPLEX_UNIT_DIP, 150f)
-                setLineSpacing(0f, 0.7f)
-                text = "${timespecHandler.getText()}\n${minuteTimespecHandler?.getText() ?: ""}"
-            } else {
-                setSingleLine(true)
-                setTextSize(TypedValue.COMPLEX_UNIT_SP, 28f)
-                text = timespecHandler.getText()
-            }
+            face.style(this)
+            text = face.timeText()
         }
 
     private val dateRow = SymmetraDateRow(weekdayFormatter, monthDayFormatter, timeView)
@@ -81,19 +62,13 @@ class SymmetraClockFaceController(
     @Deprecated("Prefer use of layout")
     override val view = timeView
 
-    override val layout =
-        if (isLargeClock) DefaultClockFaceLayout(timeView) else SymmetraClockFaceLayout(timeView)
+    override val layout = face.createLayout(timeView)
 
     override val events =
         object : ClockFaceEvents {
             override fun onTimeTick() {
-                timeFormatter.timeKeeper.updateTime()
-                timeView.text =
-                    if (isLargeClock) {
-                        "${timespecHandler.getText()}\n${minuteTimespecHandler?.getText() ?: ""}"
-                    } else {
-                        timespecHandler.getText()
-                    }
+                timeKeeper.updateTime()
+                timeView.text = face.timeText()
                 logger.i("Updated rendered time to '${timeView.text}'")
                 dateRow.update()
             }

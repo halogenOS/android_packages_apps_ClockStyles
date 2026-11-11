@@ -16,7 +16,7 @@ import com.android.systemui.customization.clocks.view.DefaultClockFaceLayout
 import com.android.systemui.plugins.keyguard.ui.clocks.ClockPreviewConfig
 import com.android.systemui.plugins.keyguard.ui.clocks.ClockViewIds
 
-class SymmetraClockFaceLayout(view: View) : DefaultClockFaceLayout(view) {
+internal class SymmetraClockFaceLayout(view: View) : DefaultClockFaceLayout(view) {
 
     override fun applyConstraints(constraints: ConstraintSet): ConstraintSet {
         super.applyConstraints(constraints)
