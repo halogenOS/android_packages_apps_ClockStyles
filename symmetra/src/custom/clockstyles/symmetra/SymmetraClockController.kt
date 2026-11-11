@@ -81,7 +81,9 @@ internal class SymmetraClockController(
             }
 
             override fun onWeatherDataChanged(data: WeatherData) {}
+
             override fun onAlarmDataChanged(data: AlarmData) {}
+
             override fun onZenDataChanged(data: ZenData) {}
         }
 
