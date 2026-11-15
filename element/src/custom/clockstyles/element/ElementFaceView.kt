@@ -69,7 +69,9 @@ private val FaceSize.tileLayout
                     corners =
                         Corners(
                             date = DpRect(204.dp, 7.dp, 356.dp, 84.dp),
-                            alarm = DpRect(4.dp, 196.dp, 160.dp, 240.dp),
+                            // From the bottom left corner of the tilted hour tile, so the alarm
+                            // ends far from the minute tile.
+                            alarm = DpRect(29.dp, 196.dp, 160.dp, 240.dp),
                         ),
                 )
             FaceSize.SMALL ->
@@ -116,7 +118,6 @@ private constructor(context: Context, private val layout: TileLayout, colors: Cl
     private var hourTile = TileContent("", null, null, null)
     private var minuteTile = TileContent("", null, null, null)
     private var dateScale = 1f
-    private var nextAlarmWidth = 0f
     private var nextAlarmScale = 1f
 
     override fun onReading(reading: ClockReading) {
@@ -125,8 +126,7 @@ private constructor(context: Context, private val layout: TileLayout, colors: Cl
         val corners = layout.corners ?: return
         dateScale = corners.date.scaleToFit(dayAndDateWidth(reading), dayAndDateHeight)
         reading.nextAlarm?.let {
-            nextAlarmWidth = alarmWidth(it, alarm)
-            nextAlarmScale = corners.alarm.scaleToFit(nextAlarmWidth, alarm.textHeight)
+            nextAlarmScale = corners.alarm.scaleToFit(alarmWidth(it, alarm), alarm.textHeight)
         }
     }
 
@@ -200,11 +200,11 @@ private constructor(context: Context, private val layout: TileLayout, colors: Cl
     }
 
     private fun nextAlarm(canvas: Canvas, time: String, style: GlassStyle, corner: DpRect) {
-        val end = corner.right.px
+        val start = corner.left.px
         val top = corner.top.px
         canvas.save()
-        canvas.scale(nextAlarmScale, nextAlarmScale, end, top)
-        canvas.drawAlarm(time, style, alarm, end - nextAlarmWidth, alarm.baselineBelow(top))
+        canvas.scale(nextAlarmScale, nextAlarmScale, start, top)
+        canvas.drawAlarm(time, style, alarm, start, alarm.baselineBelow(top))
         canvas.restore()
     }
 }
