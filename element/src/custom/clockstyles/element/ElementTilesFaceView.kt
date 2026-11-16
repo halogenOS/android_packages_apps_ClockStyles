@@ -7,7 +7,6 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.RectF
-import custom.clockstyles.periodictable.AtomicWeight
 import custom.clockstyles.periodictable.ClockColors
 import custom.clockstyles.periodictable.ClockReading
 import custom.clockstyles.periodictable.Dp
@@ -16,7 +15,6 @@ import custom.clockstyles.periodictable.DpRect
 import custom.clockstyles.periodictable.Element
 import custom.clockstyles.periodictable.FaceArea
 import custom.clockstyles.periodictable.FaceDesign
-import custom.clockstyles.periodictable.FaceSize
 import custom.clockstyles.periodictable.FaceView
 import custom.clockstyles.periodictable.GlassStyle
 import custom.clockstyles.periodictable.baselineBelow
@@ -29,101 +27,63 @@ import custom.clockstyles.periodictable.withAlpha
 private data class TilePlacement(val centre: DpPoint, val tiltDegrees: Float)
 
 /**
- * The two corners of a face left free by its tiles: [date] beside the hour tile, for the day and
+ * The two corners of the face left free by its tiles: [date] beside the hour tile, for the day and
  * the date, and [alarm] under it, for the next alarm. Text too large for its corner shrinks.
  */
 private data class Corners(val date: DpRect, val alarm: DpRect)
 
-/**
- * The tiles of a face: their edge, the size of the number on them and where each sits. A face with
- * [tileLabels] writes name and atomic weight on each tile. A face with [corners] writes the date
- * and the next alarm into them.
- */
+/** The tiles of the face: their edge, the size of the number on them and where each sits. */
 private data class TileLayout(
     val width: Dp,
     val height: Dp,
-    val area: FaceArea,
     val tileEdge: Dp,
     val numberSize: Dp,
     val hour: TilePlacement,
     val minute: TilePlacement,
-    val tileLabels: Boolean,
-    val corners: Corners?,
+    val corners: Corners,
 ) {
-    val design = FaceDesign(width, height, area, showsDate = corners != null)
+    val design = FaceDesign(width, height, FaceArea.FILLED_CENTRED, showsDate = true)
 }
 
-private val FaceSize.tileLayout
-    get() =
-        when (this) {
-            FaceSize.LARGE ->
-                TileLayout(
-                    width = 360.dp,
-                    height = 316.dp,
-                    area = FaceArea.FILLED_CENTRED,
-                    tileEdge = 162.dp,
-                    numberSize = 92.dp,
-                    hour = TilePlacement(DpPoint(103.dp, 93.dp), tiltDegrees = -5f),
-                    minute = TilePlacement(DpPoint(257.dp, 177.dp), tiltDegrees = 4f),
-                    tileLabels = true,
-                    corners =
-                        Corners(
-                            date = DpRect(204.dp, 7.dp, 356.dp, 84.dp),
-                            // From the bottom left corner of the tilted hour tile, so the alarm
-                            // ends far from the minute tile.
-                            alarm = DpRect(29.dp, 196.dp, 160.dp, 240.dp),
-                        ),
-                )
-            FaceSize.SMALL ->
-                TileLayout(
-                    width = 132.dp,
-                    height = 114.dp,
-                    area = FaceArea.DESIGN,
-                    tileEdge = 60.dp,
-                    numberSize = 32.dp,
-                    hour = TilePlacement(DpPoint(32.dp, 52.dp), tiltDegrees = -5f),
-                    minute = TilePlacement(DpPoint(94.dp, 62.dp), tiltDegrees = 4f),
-                    tileLabels = false,
-                    corners = null,
-                )
-        }
+private val LAYOUT =
+    TileLayout(
+        width = 360.dp,
+        height = 316.dp,
+        tileEdge = 162.dp,
+        numberSize = 92.dp,
+        hour = TilePlacement(DpPoint(103.dp, 93.dp), tiltDegrees = -5f),
+        minute = TilePlacement(DpPoint(257.dp, 177.dp), tiltDegrees = 4f),
+        corners =
+            Corners(
+                date = DpRect(204.dp, 7.dp, 356.dp, 84.dp),
+                // From the bottom left corner of the tilted hour tile, so the alarm ends far from
+                // the minute tile.
+                alarm = DpRect(29.dp, 196.dp, 160.dp, 240.dp),
+            ),
+    )
 
 /**
- * What one tile shows. A number without an element, such as 00, has a tile with only the number.
+ * The large face of the Element clock: the hour tile above at the start, the minute tile below it,
+ * with name and atomic weight on each tile, and the date and the next alarm in the free corners.
  */
-private data class TileContent(
-    val number: String,
-    val symbol: String?,
-    val name: String?,
-    val weight: String?,
-)
-
-/** A face of the Element clock: the hour tile above at the start, the minute tile below it. */
-class ElementFaceView
-private constructor(context: Context, private val layout: TileLayout, colors: ClockColors) :
-    FaceView(context, layout.design, colors) {
-    constructor(
-        context: Context,
-        size: FaceSize,
-        colors: ClockColors,
-    ) : this(context, size.tileLayout, colors)
-
-    private val number = textPaint(layout.numberSize, weight = 300, Paint.Align.CENTER)
-    private val symbol = textPaint(layout.tileEdge * 0.15f, weight = 650, Paint.Align.RIGHT)
-    private val name = textPaint(layout.tileEdge * 0.085f, weight = 500)
-    private val weight = textPaint(layout.tileEdge * 0.07f, weight = 400)
+class ElementTilesFaceView(context: Context, colors: ClockColors) :
+    FaceView(context, LAYOUT.design, colors) {
+    private val number = textPaint(LAYOUT.numberSize, weight = 300, Paint.Align.CENTER)
+    private val symbol = textPaint(LAYOUT.tileEdge * 0.15f, weight = 650, Paint.Align.RIGHT)
+    private val name = textPaint(LAYOUT.tileEdge * 0.085f, weight = 500)
+    private val weight = textPaint(LAYOUT.tileEdge * 0.07f, weight = 400)
     private val alarm = scaledTextPaint(17f, weight = 450)
     private val bounds = RectF()
 
-    private var hourTile = TileContent("", null, null, null)
-    private var minuteTile = TileContent("", null, null, null)
+    private var hourTile = ElementContent.EMPTY
+    private var minuteTile = ElementContent.EMPTY
     private var dateScale = 1f
     private var nextAlarmScale = 1f
 
     override fun onReading(reading: ClockReading) {
-        hourTile = content(reading.hourText, Element.numbered(reading.hour))
-        minuteTile = content(reading.minuteText, Element.numbered(reading.minute))
-        val corners = layout.corners ?: return
+        hourTile = resources.elementContent(reading.hourText, Element.numbered(reading.hour))
+        minuteTile = resources.elementContent(reading.minuteText, Element.numbered(reading.minute))
+        val corners = LAYOUT.corners
         dateScale = corners.date.scaleToFit(dayAndDateWidth(reading), dayAndDateHeight)
         reading.nextAlarm?.let {
             nextAlarmScale = corners.alarm.scaleToFit(alarmWidth(it, alarm), alarm.textHeight)
@@ -131,30 +91,20 @@ private constructor(context: Context, private val layout: TileLayout, colors: Cl
     }
 
     override fun draw(canvas: Canvas, reading: ClockReading, style: GlassStyle) {
-        tile(canvas, style, hourTile, layout.hour)
-        tile(canvas, style, minuteTile, layout.minute)
-        layout.corners?.let { corners ->
-            date(canvas, reading, style, corners.date)
-            reading.nextAlarm?.let { nextAlarm(canvas, it, style, corners.alarm) }
-        }
+        tile(canvas, style, hourTile, LAYOUT.hour)
+        tile(canvas, style, minuteTile, LAYOUT.minute)
+        date(canvas, reading, style, LAYOUT.corners.date)
+        reading.nextAlarm?.let { nextAlarm(canvas, it, style, LAYOUT.corners.alarm) }
     }
-
-    private fun content(text: String, element: Element?) =
-        TileContent(
-            number = text,
-            symbol = element?.symbol,
-            name = element?.takeIf { layout.tileLabels }?.let { resources.getString(it.nameRes) },
-            weight = element?.takeIf { layout.tileLabels }?.weight?.label,
-        )
 
     private fun tile(
         canvas: Canvas,
         style: GlassStyle,
-        content: TileContent,
+        content: ElementContent,
         placement: TilePlacement,
     ) {
         val centre = placement.centre.px
-        val half = layout.tileEdge.px / 2
+        val half = LAYOUT.tileEdge.px / 2
         bounds.set(centre.x - half, centre.y - half, centre.x + half, centre.y + half)
         canvas.save()
         canvas.rotate(placement.tiltDegrees, centre.x, centre.y)
@@ -208,10 +158,3 @@ private constructor(context: Context, private val layout: TileLayout, colors: Cl
         canvas.restore()
     }
 }
-
-private val AtomicWeight.label
-    get() =
-        when (this) {
-            is AtomicWeight.Standard -> value
-            is AtomicWeight.LongestLivedIsotope -> "($massNumber)"
-        }
