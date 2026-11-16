@@ -36,6 +36,12 @@ data class GlassStyle(val colors: ClockColors, val dozeFraction: Float) {
     }
 }
 
+private const val TILE_DEPTH_PER_WIDTH = 0.035f
+
+/** How far the thick side of a tile of this width shows below and beside it. */
+val Dp.tileDepth
+    get() = this * TILE_DEPTH_PER_WIDTH
+
 /** Draws thick glass in a [GlassStyle]. Lengths are in pixels. */
 class GlassPainter(private val density: Float) {
     private val fill = Paint(Paint.ANTI_ALIAS_FLAG)
@@ -45,7 +51,7 @@ class GlassPainter(private val density: Float) {
     /** A rounded tile with its thick side showing towards the bottom right. */
     fun tile(canvas: Canvas, style: GlassStyle, bounds: RectF, radius: Float) {
         val glass = style.colors.glass
-        val depth = bounds.width() * 0.035f
+        val depth = bounds.width() * TILE_DEPTH_PER_WIDTH
         if (style.solidity > 0f) {
             fill.shader = null
             fill.color = glass.side.withAlpha(style.solidity)
@@ -78,6 +84,14 @@ class GlassPainter(private val density: Float) {
             radius,
             line,
         )
+    }
+
+    /** A line in the colour of the rim of the glass at [x], from [top] to [bottom]. */
+    fun divider(canvas: Canvas, style: GlassStyle, x: Float, top: Float, bottom: Float) {
+        line.strokeWidth = (if (style.solidity > 0f) RIM else OUTLINE) * density
+        line.color =
+            blend(style.colors.glass.light.withAlpha(0.7f), style.colors.aod, style.dozeFraction)
+        canvas.drawLine(x, top, x, bottom, line)
     }
 
     /** A sphere lit from the top left, around [centre]. */

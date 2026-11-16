@@ -9,7 +9,6 @@ import android.content.Context
 import android.icu.util.TimeZone
 import com.android.systemui.customization.clocks.TimeKeeper
 import com.android.systemui.customization.clocks.TimeKeeperImpl
-import com.android.systemui.customization.clocks.view.DefaultClockFaceLayout
 import com.android.systemui.plugins.keyguard.VRect
 import com.android.systemui.plugins.keyguard.data.model.AlarmData
 import com.android.systemui.plugins.keyguard.data.model.WeatherData
@@ -29,6 +28,7 @@ import com.android.systemui.plugins.keyguard.ui.clocks.ClockPickerConfig
 import com.android.systemui.plugins.keyguard.ui.clocks.ClockPositionAnimationArgs
 import com.android.systemui.plugins.keyguard.ui.clocks.ClockProviderPlugin
 import com.android.systemui.plugins.keyguard.ui.clocks.ClockSettings
+import com.android.systemui.plugins.keyguard.ui.clocks.ClockStyleSlot
 import com.android.systemui.plugins.keyguard.ui.clocks.ClockViewIds
 import com.android.systemui.plugins.keyguard.ui.clocks.ThemeConfig
 import com.android.systemui.plugins.keyguard.ui.clocks.TimeFormatKind
@@ -198,7 +198,11 @@ class PeriodicTableFaceController(
 
     @Deprecated("Use layout instead") override val view = faceView
 
-    override val layout = DefaultClockFaceLayout(faceView)
+    override val layout = faceView.createLayout()
+
+    override val clockStyleSlot: ClockStyleSlot? = EmptyDateSlot.takeIf {
+        faceView.design.showsDate
+    }
 
     override val events =
         object : ClockFaceEvents {

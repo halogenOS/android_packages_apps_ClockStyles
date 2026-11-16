@@ -13,14 +13,41 @@ import android.view.View
 import kotlin.math.min
 
 /**
- * How much room a face takes: the size of its design, or the whole area SystemUI gives it. SystemUI
- * centres a face in its area, so a face that fills the area draws its design at the top of it,
- * either at the start or centred across it.
+ * How much room a face takes: the size of its design, or the width or the whole area SystemUI gives
+ * it. SystemUI centres a face in its area, so a face that fills the area draws its design at the
+ * top of it, either at the start or centred across it.
+ *
+ * @property fillsWidth the face is as wide as the area, else as wide as its design
+ * @property fillsHeight the face is as high as the area, else as high as its design
+ * @property centresDesign the design is in the middle of the width of the face, else at its start
+ * @property spansHostWidth the face sets its own constraints to span the width of the screen, in
+ *   place of the place and the fixed height SystemUI gives every small clock
  */
-enum class FaceArea {
-    DESIGN,
-    FILLED_FROM_START,
-    FILLED_CENTRED,
+enum class FaceArea(
+    val fillsWidth: Boolean,
+    val fillsHeight: Boolean,
+    val centresDesign: Boolean,
+    val spansHostWidth: Boolean,
+) {
+    DESIGN(fillsWidth = false, fillsHeight = false, centresDesign = false, spansHostWidth = false),
+    FILLED_FROM_START(
+        fillsWidth = true,
+        fillsHeight = true,
+        centresDesign = false,
+        spansHostWidth = false,
+    ),
+    FILLED_CENTRED(
+        fillsWidth = true,
+        fillsHeight = true,
+        centresDesign = true,
+        spansHostWidth = false,
+    ),
+    CENTRED_IN_WIDTH(
+        fillsWidth = true,
+        fillsHeight = false,
+        centresDesign = true,
+        spansHostWidth = true,
+    ),
 }
 
 /**
@@ -42,6 +69,11 @@ abstract class FaceView(context: Context, val design: FaceDesign, colors: ClockC
     private val alarmIcon = AlarmIcon(density)
     private val weekday by lazy { scaledTextPaint(18f, weight = 400) }
     private val monthDay by lazy { textPaint(46.dp, weight = 300) }
+    private val dateRow by lazy {
+        scaledTextPaint(DATE_ROW_SIZE_SP, weight = 450).apply {
+            letterSpacing = DATE_ROW_LETTER_SPACING
+        }
+    }
 
     protected var style = GlassStyle(colors, dozeFraction = 0f)
         private set
@@ -84,12 +116,8 @@ abstract class FaceView(context: Context, val design: FaceDesign, colors: ClockC
         val availableWidth = available(widthMeasureSpec) ?: designWidth
         val availableHeight = available(heightMeasureSpec) ?: designHeight
         scale = min(1f, min(availableWidth / designWidth, availableHeight / designHeight))
-        val (width, height) =
-            when (design.area) {
-                FaceArea.FILLED_FROM_START,
-                FaceArea.FILLED_CENTRED -> availableWidth to availableHeight
-                FaceArea.DESIGN -> designWidth * scale to designHeight * scale
-            }
+        val width = if (design.area.fillsWidth) availableWidth else designWidth * scale
+        val height = if (design.area.fillsHeight) availableHeight else designHeight * scale
         setMeasuredDimension(
             resolveSize(width.toInt(), widthMeasureSpec),
             resolveSize(height.toInt(), heightMeasureSpec),
@@ -141,6 +169,37 @@ abstract class FaceView(context: Context, val design: FaceDesign, colors: ClockC
         monthDay.color = style.inkBeside
         drawUpright(reading.weekday, start, weekday.baselineBelow(top), weekday)
         drawUpright(reading.monthDay, start, dateBaselineBelow(top), monthDay)
+    }
+
+    /**
+     * Writes the day of the week, the date and the next alarm of [reading] in one row of capitals,
+     * as the date row of the Symmetra clock, centred on [centreX] with its top at [top]. A row
+     * wider than the face shrinks to its width.
+     */
+    protected fun Canvas.drawDateRow(
+        reading: ClockReading,
+        style: GlassStyle,
+        centreX: Float,
+        top: Float,
+    ) {
+        val locale = resources.configuration.locales[0]
+        val date = "${reading.weekday}$DATE_ROW_SEPARATOR${reading.monthDay}".uppercase(locale)
+        val alarm = reading.nextAlarm?.uppercase(locale)
+        val dateWidth = dateRow.measureText(date)
+        val separatorWidth = dateRow.measureText(DATE_ROW_SEPARATOR)
+        val rowWidth = dateWidth + (alarm?.let { separatorWidth + alarmWidth(it, dateRow) } ?: 0f)
+        val fit = min(1f, this@FaceView.width / scale / rowWidth)
+        val baseline = dateRow.baselineBelow(top)
+        val start = centreX - rowWidth / 2
+        dateRow.color = style.inkBeside
+        save()
+        scale(fit, fit, centreX, top)
+        drawUpright(date, start, baseline, dateRow)
+        alarm?.let {
+            drawUpright(DATE_ROW_SEPARATOR, start + dateWidth, baseline, dateRow)
+            drawAlarm(it, style, dateRow, start + dateWidth + separatorWidth, baseline)
+        }
+        restore()
     }
 
     /** The width of the alarm icon and [time] in [paint] as [drawAlarm] draws them. */
@@ -211,12 +270,7 @@ abstract class FaceView(context: Context, val design: FaceDesign, colors: ClockC
         get() = layoutDirection == LAYOUT_DIRECTION_RTL
 
     private val designStart
-        get() =
-            when (design.area) {
-                FaceArea.FILLED_CENTRED -> (width - design.width.px * scale) / 2
-                FaceArea.FILLED_FROM_START,
-                FaceArea.DESIGN -> 0f
-            }
+        get() = if (design.area.centresDesign) (width - design.width.px * scale) / 2 else 0f
 
     private fun available(measureSpec: Int): Float? =
         MeasureSpec.getSize(measureSpec).toFloat().takeIf {
@@ -225,6 +279,11 @@ abstract class FaceView(context: Context, val design: FaceDesign, colors: ClockC
 
     private companion object {
         val ALARM_ICON_GAP = 6.dp
+
+        // The look of the date row, the same as on the Symmetra clock.
+        const val DATE_ROW_SIZE_SP = 14f
+        const val DATE_ROW_LETTER_SPACING = 0.15f
+        const val DATE_ROW_SEPARATOR = " · "
     }
 }
 
