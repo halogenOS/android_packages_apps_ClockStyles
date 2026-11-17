@@ -194,7 +194,7 @@ class PeriodicTableFaceController(
     val faceView: FaceView,
     private val read: () -> ClockReading,
 ) : ClockFaceController {
-    override val config = ClockFaceConfig(hasCustomWeatherDataDisplay = faceView.design.showsDate)
+    override val config = ClockFaceConfig()
 
     @Deprecated("Use layout instead") override val view = faceView
 
